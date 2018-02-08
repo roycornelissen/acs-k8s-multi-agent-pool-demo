@@ -272,6 +272,22 @@
                 "description": "The size of the Linux Virtual Machines."
             }
         },
+        "osDiskSizeGB": {
+            "defaultValue": 200,
+            "minValue": 100,
+            "maxValue": 1024,
+            "type": "int",
+            "metadata": {
+                "description": "The size of the OS disk in Gigabytes. Can be 100-1024 GiB"
+            }
+        },
+        "enableDiagnostics": {
+            "defaultValue": false,
+            "type": "bool",
+            "metadata": {
+                "description": "Enable or disable VM diagnostics."
+            }
+        },
         "windowsAgentAdminUsername": {
             "defaultValue": "azureuser",
             "type": "string",
@@ -308,13 +324,6 @@
             "type": "securestring",
             "metadata": {
                 "description": "The Service Principal Client Secret."
-            }
-        },
-        "enableDiagnostics": {
-            "defaultValue": false,
-            "type": "bool",
-            "metadata": {
-                "description": "Enable or disable VM diagnostics."
             }
         },
         "ukRegion": {
@@ -365,7 +374,8 @@
                 "masterProfile": {
                     "count": "[parameters('masterCount')]",
                     "dnsPrefix": "[variables('mastersEndpointDNSNamePrefix')]",
-                    "vmSize": "[parameters('masterVMSize')]"
+                    "vmSize": "[parameters('masterVMSize')]",
+                    "OSDiskSizeGB": "[parameters('osDiskSizeGB')]"
                 },
                 "agentPoolProfiles": [
                     {
@@ -373,14 +383,22 @@
                         "count": "[parameters('windowsAgentCount')]",
                         "vmSize": "[parameters('windowsAgentVMSize')]",
                         "dnsPrefix": "[variables('agentsEndpointDNSNamePrefix')]",
-                        "osType": "Windows"
+                        "osType": "Windows",
+                        "OSDiskSizeGB": "[parameters('osDiskSizeGB')]",
+                        "availabilityProfile": "AvailabilitySet",
+                        "storageProfile": "StorageAccount",
+                        "diskSizesGB": [256, 256]
                     },
                     {
                         "name": "linuxpool",
                         "count": "[parameters('linuxAgentCount')]",
                         "vmSize": "[parameters('linuxAgentVMSize')]",
                         "dnsPrefix": "[variables('agentsEndpointDNSNamePrefix')]",
-                        "osType": "Linux"
+                        "osType": "Linux",
+                        "OSDiskSizeGB": "[parameters('osDiskSizeGB')]",
+                        "availabilityProfile": "AvailabilitySet",
+                        "storageProfile": "StorageAccount",
+                        "diskSizesGB": [256, 256]
                     }
                 ],
                 "diagnosticsProfile": "[variables('diagnosticProfileFields')[variables('isUK')]]",
